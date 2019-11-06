@@ -1,114 +1,115 @@
-import React, {useState} from 'react'
-import main_url from '../../config'
-import Card from 'react-bootstrap/Card'
-function Register() {
-    const [email, setEmail] = useState('');
-    const [first_name, setFirstName] = useState('');
-    const [last_name, setLastName] = useState('');
-    const [password, setPassword] = useState('');
-    const [passClass, setPassClass] = useState('');
-    const [confirmPass, setConfirmPass] = useState('hidden-pw');
-    
-    const confirmPassword = (event) => {
-        if (password !== event.target.value){
-            setPassClass('error-pass');
-            setConfirmPass('pass-not-match')
-        } else {
-            setPassClass('correct');
-            setConfirmPass('hidden-pw')
-            }
-        }
+import React, { useState } from "react";
+import { connect } from "react-redux";
+import { auth } from "../../actions";
 
+function Register(props) {
+  const [formData, setFormData] = useState({});
 
-    const handleSubmit = (event) => {
-        if (passClass !== 'correct') {
-            alert('please ensure that your password matches');
-        } else {
-            const user = {
-                username: email,
-                first_name: first_name,
-                last_name: last_name,
-                email: email,
-                password: password
-            }
+  const handleSubmit = e => {
+    e.preventDefault();
+    props.register(formData.username, formData.password, formData.first_name, formData.last_name);
+  };
 
-            main_url.post("/users/api/user/", user)
-                .then(() => {
-                    const loginInfo = {
-                        username: email,
-                        password: password,
-                        first_name: first_name,
-                        last_name: last_name,
-                        email: email,
-                    }
-                    main_url.post("/users/api-token-auth/", loginInfo)
-                    .then(res => {
-                        window.localStorage['token'] = res.data['token']
-                    }).then(() => {
-                        main_url.get("/api/users/", {
-                            headers: {
-                                Authorization: `Token ${window.localStorage['token']}`
-                            }
-                        }
-                    )
-                    })
-                }).catch(e => {
-                    alert('Please ensure that you have the correct email')
-                }).then(()=>{
-                    window.location.href='/'
-                })
-
-            }
-            
-        event.preventDefault();
-    }
-    
-    if (window.localStorage.token !== 'null'){
-        return(
-            <div>
-                <Card>
-                    <Card.Body>
-                        It looks like you are already logged in, to create a new account, logout first!
-                    </Card.Body>
-                </Card>
-            </div>
-        )
-    }
-    
-    return (
-  
-        <div className='container card text-white bg-secondary mb-3' style={{width: "80%", margin:"1em auto", textAlign:"center"}}>
-            <h1>JOIN NOW</h1>
-            <form className='card bg-primary mb-3' style={{width: "80%", margin:"0 auto"}} onSubmit={handleSubmit}>
-                <h2 className='card-header'>Create Account</h2>
-                <div className='card-body'>
-                <label htmlFor='email'><b> Email: </b> <br />
-                <input type='text' value={email} placeholder = 'Email' name='email' onChange = {(e)=> setEmail(e.target.value)}required/>
-                </label>
-                <br/>
-                <label htmlFor='first_name'><b>First Name: </b> <br />
-                <input type='text' value={first_name} placeholder = 'First Name' name='first_name' onChange = {(e)=> setFirstName(e.target.value)}required/>
-                </label>
-                <br/>
-                <label htmlFor='first_name'><b>Last Name: </b> <br />
-                <input type='text' value={last_name} placeholder = 'Last Name' name='last_name' onChange = {(e)=> setLastName(e.target.value)}required/>
-                </label>
-                <br/>
-                <label htmlFor='password'><b> Password:  </b> <br />
-                <input type='password' value={password} placeholder = 'Password' name='password' onChange = {(e)=> setPassword(e.target.value)}required/>
-                </label>
-                <br/>
-                <label htmlFor='password'><b>Confirm Password: </b> <br />
-                <input type='password' className={passClass}  placeholder = 'Confirm Password' name='confirmPassword' onChange = {confirmPassword}required/>
-                <p className={confirmPass}>Password does not match</p>
-                </label>
-                <br/>
-                <input className="btn btn-secondary" type='submit' value='Sign-up'/>
-                </div>
-            </form>
+  return (
+    <div>
+      <h1>JOIN NOW</h1>
+      <form onSubmit={handleSubmit}>
+        <h2 className="card-header">Create Account</h2>
+        <div className="card-body">
+          <label htmlFor="email">
+            <b> Email: </b> <br />
+            <input
+              type="text"
+              value={formData.username}
+              placeholder="Email"
+              name="email"
+              onChange={e =>
+                setFormData({ ...formData, username: e.target.value })
+              }
+              required
+            />
+          </label>
+          <br />
+          <label htmlFor="first_name">
+            <b>First Name: </b> <br />
+            <input
+              type="text"
+              value={formData.first_name}
+              placeholder="First Name"
+              name="first_name"
+              onChange={e =>
+                setFormData({ ...formData, first_name: e.target.value })
+              }
+              required
+            />
+          </label>
+          <br />
+          <label htmlFor="last_name">
+            <b>Last Name: </b> <br />
+            <input
+              type="text"
+              value={formData.last_name}
+              placeholder="Last Name"
+              name="last_name"
+              onChange={e =>
+                setFormData({ ...formData, last_name: e.target.value })
+              }
+              required
+            />
+          </label>
+          <br />
+          <label htmlFor="password">
+            <b> Password: </b> <br />
+            <input
+              type="password"
+              value={formData.password}
+              placeholder="Password"
+              name="password"
+              onChange={e =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+              required
+            />
+          </label>
+          <br />
+          <label htmlFor="password">
+            <b>Confirm Password: </b> <br />
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              name="confirmPassword"
+              required
+            />
+          </label>
+          <br />
+          <input type="submit" value="Sign-up" />
         </div>
-
-    )
+      </form>
+    </div>
+  );
 }
 
-export default Register
+const mapStateToProps = state => {
+  let errors = [];
+  if (state.auth.errors) {
+    errors = Object.keys(state.auth.errors).map(field => {
+      return { field, message: state.auth.errors[field] };
+    });
+  }
+  return {
+    errors,
+    isAuthenticated: state.auth.isAuthenticated
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    register: (username, password, first_name, last_name) =>
+      dispatch(auth.register(username, password, first_name, last_name))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Register);

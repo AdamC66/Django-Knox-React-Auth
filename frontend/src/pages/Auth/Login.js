@@ -1,48 +1,55 @@
 import React, { useState } from 'react'
-import main_url from '../../config'
+import {connect} from "react-redux";
 
-function Login() {
-    const[email, setEmail] = useState('');
-    const[password, setPassword] = useState('');
-    
+import {auth} from "../../actions";
+
+function Login(props) {
+    const [formData, setFormData] = useState({})
+
     const handleLogin = (event) => {
-        const user = {
-            username: email,
-            password: password
-        }
-
-        main_url.post("/users/api-token-auth/", user)
-        .then(res => {
-            window.localStorage['token'] = res.data['token']
-        }).catch(() => {
-            alert('Incorrect login credentials, please try again');
-            setPassword('');
-        })
-        .then(() => {
-            if(window.localStorage['token'] !== 'null'){
-                window.location.href = '/'
-            }});
-        event.preventDefault();
-        }
+        event.preventDefault()
+        props.login(formData.username, formData.password)
+    }
 
 
     
     return (
-        <div className='card text-white bg-secondary mb-3' style={{width: "80%", margin:"1em auto", textAlign:"center"}}>
+        <div>
             <h1>Login</h1>
-            <form className='card bg-primary mb-3' style={{width: "80%", margin:"0 auto"}} onSubmit = {handleLogin}>
+            <form onSubmit = {handleLogin}>
                 <br/>
                 <label htmlFor='email'><b> Email: </b>
-                <input type='text' className="form-control" style={{width: "60%", margin:"0 auto"}} value={email} placeholder = 'Email' name='email' onChange = {(e)=> setEmail(e.target.value)}required/>
+                <input type='text' value={formData.username} placeholder = 'Email' name='email' onChange={e => setFormData({...formData, username : e.target.value})} required/>
                 </label>
                 <br/>
                 <label htmlFor='password'><b> Password: </b></label>
-                <input type='password' className="form-control" style={{width: "60%", margin:"0 auto"}} value={password} placeholder = 'Password' name='password' onChange = {(e)=> setPassword(e.target.value)} required/>
+                <input type='password' value={formData.password} placeholder = 'Password' name='password' onChange={e => setFormData({...formData, password : e.target.value})} required/>
                 <br/>
-                <input className="btn btn-secondary" style={{width: "60%", margin:"20px auto"}}  type='submit' value='Login'/>
+                <input type='submit' value='Login'/>
             </form>
         </div>
     )
 }
 
-export default Login
+const mapStateToProps = state => {
+    let errors = [];
+    if (state.auth.errors) {
+      errors = Object.keys(state.auth.errors).map(field => {
+        return {field, message: state.auth.errors[field]};
+      });
+    }
+    return {
+      errors,
+      isAuthenticated: state.auth.isAuthenticated
+    };
+  }
+  
+  const mapDispatchToProps = dispatch => {
+    return {
+      login: (username, password) => {
+        return dispatch(auth.login(username, password));
+      }
+    };
+  }
+  
+  export default connect(mapStateToProps, mapDispatchToProps)(Login);
