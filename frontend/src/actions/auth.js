@@ -55,6 +55,7 @@ export const loadUser = () => {
         .then(res => {
           if (res.status === 200) {
             dispatch({type: 'LOGIN_SUCCESSFUL', data: res.data });
+            window.location.href="/"
             return res.data;
           } else if (res.status === 403 || res.status === 401) {
             dispatch({type: "AUTHENTICATION_ERROR", data: res.data});
@@ -93,5 +94,28 @@ export const loadUser = () => {
             throw res.data;
           }
         })
+    }
+  }
+
+  export const logout = () => {
+    return (dispatch, getState) => {
+      const token = getState().auth.token;
+      let body = {}
+      let headers = {
+        "Content-Type": "application/json",
+      };
+  
+      if (token) {
+        headers["Authorization"] = `Token ${token}`;
+      }
+
+      return main_url.post("users/api/auth/logout/", body, headers)
+        .then(res => {
+            dispatch({type: 'LOGOUT_SUCCESSFUL'});
+            return res.data;
+          }).catch(res =>{ 
+            dispatch({type: "AUTHENTICATION_ERROR", data: res.data});
+            throw res.data;
+          })
     }
   }

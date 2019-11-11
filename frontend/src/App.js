@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
 
+import Header from './components/Header/Header'
+
 import Home from './pages/Home/Home';
 import Login from './pages/Auth/Login';
 import Logout from './pages/Auth/Logout'
@@ -39,6 +41,7 @@ class RootContainerComponent extends Component {
     let {PrivateRoute} = this;
     return (
       <Router>
+          <Header />
         <Switch>
             <Route exact path = '/' component={Home}/>
             <Route exact path = '/login' component={Login}/>

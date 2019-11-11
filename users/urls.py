@@ -29,3 +29,4 @@ urlpatterns = [
     path('api/login/', api.LoginAPI.as_view()),
     path('api/user/', api.UserAPI.as_view())
 ]
+    
